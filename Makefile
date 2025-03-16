@@ -1,13 +1,13 @@
 .DEFAULT_GOAL := help
 
 run:
-	poetry run uvicorn alembic.src.main:app --host 0.0.0.0 --port 8000 --reload
-
+	poetry run uvicorn main:app --host localhost --port 8000 --reload --env-file .local.env
 
 
 install:
-	@echo "Install dependency $(LIBRARY)"
-	poetry add $(LIBRARY)
+	@echo "Installing dependency: $(filter-out $@,$(MAKECMDGOALS))"
+	poetry add $(filter-out $@,$(MAKECMDGOALS))
+
 
 uninstall:
 	@echo "Uninstalling dependency $(LIBRARY)"
@@ -25,3 +25,8 @@ update:
 	@echo "Updating all dependencies..."
 	poetry update
 
+migrate-apply:
+	poetry run alembic upgrade head
+
+migrate-create:
+	alembic revision --autogenerate -m $(MIGRATION)
