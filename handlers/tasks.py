@@ -4,15 +4,20 @@ from fastapi import APIRouter, status, Depends
 
 from database import Task
 from schema.task import TaskSchema
-from repository import TaskRepository
-from dependecy import get_task_repository
+from repository import TaskRepository, TaskCache
+from dependecy import get_task_repository, get_task_cache_repository
 
 router = APIRouter(prefix='/task', tags=['tasks'])
 
 
 @router.get('/all', response_model=list[TaskSchema])
-async def get_task(task_repository: Annotated[TaskRepository, Depends(get_task_repository)]):
-    return task_repository.get_tasks()
+async def get_task(task_repository: Annotated[TaskRepository, Depends(get_task_repository)],
+                   task_cache: Annotated[TaskCache, Depends(get_task_cache_repository)]):
+    result = task_repository.get_tasks()
+    tasks = result.copy()
+    task_schema = [TaskSchema.model_validate(task) for task in result]
+    task_cache.set_tasks(task_schema)
+    return task_schema
 
 
 @router.post('/task', response_model=TaskSchema)
