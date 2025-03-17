@@ -6,7 +6,7 @@ class TaskSchema(BaseModel):
     id: Optional[int]
     name: str
     pomodoro_count: int | None = None
-    category_id: int = Field(exclude=True)
+    category_id: int | None = None
 
     class Config:
         from_attributes = True

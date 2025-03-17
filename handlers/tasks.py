@@ -13,11 +13,13 @@ router = APIRouter(prefix='/task', tags=['tasks'])
 @router.get('/all', response_model=list[TaskSchema])
 async def get_task(task_repository: Annotated[TaskRepository, Depends(get_task_repository)],
                    task_cache: Annotated[TaskCache, Depends(get_task_cache_repository)]):
-    result = task_repository.get_tasks()
-    tasks = result.copy()
-    task_schema = [TaskSchema.model_validate(task) for task in result]
-    task_cache.set_tasks(task_schema)
-    return task_schema
+    if tasks := task_cache.get_tasks():
+        return tasks
+    else:
+        tasks = task_repository.get_tasks()
+        task_schema = [TaskSchema.model_validate(task) for task in tasks]
+        task_cache.set_tasks(task_schema)
+        return task_schema
 
 
 @router.post('/task', response_model=TaskSchema)
