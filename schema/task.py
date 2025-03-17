@@ -8,6 +8,9 @@ class TaskSchema(BaseModel):
     pomodoro_count: int | None = None
     category_id: int = Field(exclude=True)
 
+    class Config:
+        from_attributes = True
+
     @model_validator(mode='before')
     def check_name_not_none(self):
         if ['name'] is None:
