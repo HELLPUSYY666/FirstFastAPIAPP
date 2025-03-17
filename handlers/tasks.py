@@ -33,18 +33,18 @@ async def create_task(task: TaskSchema, task_repository: Annotated[TaskRepositor
     )
 
 
-
 @router.patch('/{task_id}', response_model=TaskSchema)
-async def update_task(task_id: int, name: str, task_repository: Annotated[TaskRepository, Depends(get_task_repository)]):
-    task = task_repository.get_task(task_id)
-    if not task:
-        raise HTTPException(status_code=404, detail="Task not found")
-    task.name = name
-    task_repository.update_task(task)
-    return task
-
+async def update_task(task_id: int, name: str,
+                      task_repository: Annotated[TaskRepository, Depends(get_task_repository)]):
+    try:
+        updated_task = task_repository.update_task_name(task_id, name)
+        return updated_task
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    return {"message": f"Task {task_id} updated successfully"}
 
 
 @router.delete('/{task_id}', status_code=status.HTTP_204_NO_CONTENT)
 async def delete_task(task_id: int, task_repository: Annotated[TaskRepository, Depends(get_task_repository)]):
     task_repository.delete_task(task_id)
+    return {"message": "Task deleted"}

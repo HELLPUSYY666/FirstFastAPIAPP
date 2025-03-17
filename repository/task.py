@@ -1,7 +1,6 @@
 from sqlalchemy.orm import Session
-from sqlalchemy import select, delete
-from database import Task, get_db_session, Category
-from schema.task import TaskSchema
+from sqlalchemy import select, delete, update
+from database import Task, Category
 
 
 class TaskRepository:
@@ -34,9 +33,19 @@ class TaskRepository:
             session.execute(delete(Task).where(Task.id == task_id))
             session.commit()
 
+    def update_task_name(self, task_id: int, name: str) -> Task:
+        with self.db_session() as session:
+            session.execute(update(Task).where(Task.id == task_id).values(name=name))
+            session.commit()
+            task = session.execute(select(Task).where(Task.id == task_id)).scalar_one_or_none()
+
+            if task is None:
+                raise ValueError(f"Task with id {task_id} not found")
+
+            return task
+
     def get_task_by_category_name(self, category_name: str) -> list[Task]:
         query = select(Task).join(Category, Task.category_id == Category.id).where(Task.category_id == category_name)
         with self.db_session() as session:
             task = list[Task] = session.execute(query).scalars().all()
             return task
-
