@@ -4,22 +4,16 @@ from fastapi import APIRouter, status, Depends
 
 from database import Task
 from schema.task import TaskSchema
-from repository import TaskRepository, TaskCache
-from dependecy import get_task_repository, get_task_cache_repository
+from repository import TaskRepository, TaskCacheRepository
+from dependecy import get_task_repository, get_task_cache_repository, get_task_service
+from service import TaskService
 
 router = APIRouter(prefix='/task', tags=['tasks'])
 
 
 @router.get('/all', response_model=list[TaskSchema])
-async def get_task(task_repository: Annotated[TaskRepository, Depends(get_task_repository)],
-                   task_cache: Annotated[TaskCache, Depends(get_task_cache_repository)]):
-    if tasks := task_cache.get_tasks():
-        return tasks
-    else:
-        tasks = task_repository.get_tasks()
-        task_schema = [TaskSchema.model_validate(task) for task in tasks]
-        task_cache.set_tasks(task_schema)
-        return task_schema
+async def get_task(task_service: Annotated[TaskService, Depends(get_task_service)]):
+    return await task_service.get_tasks()
 
 
 @router.post('/task', response_model=TaskSchema)
@@ -30,7 +24,7 @@ async def create_task(task: TaskSchema, task_repository: Annotated[TaskRepositor
         category_id=task.category_id
     )
 
-    created_task = task_repository.create_task(new_task)
+    created_task = await task_repository.create_task(new_task)
 
     return TaskSchema(
         id=created_task.id,
@@ -44,7 +38,7 @@ async def create_task(task: TaskSchema, task_repository: Annotated[TaskRepositor
 async def update_task(task_id: int, name: str,
                       task_repository: Annotated[TaskRepository, Depends(get_task_repository)]):
     try:
-        updated_task = task_repository.update_task_name(task_id, name)
+        updated_task = await task_repository.update_task_name(task_id, name)
         return updated_task
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
@@ -53,5 +47,5 @@ async def update_task(task_id: int, name: str,
 
 @router.delete('/{task_id}', status_code=status.HTTP_204_NO_CONTENT)
 async def delete_task(task_id: int, task_repository: Annotated[TaskRepository, Depends(get_task_repository)]):
-    task_repository.delete_task(task_id)
+    await task_repository.delete_task(task_id)
     return {"message": "Task deleted"}
