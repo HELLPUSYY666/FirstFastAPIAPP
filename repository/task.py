@@ -6,12 +6,10 @@ from database import Task
 
 class TaskRepository:
     def __init__(self, db_session_maker: async_sessionmaker[AsyncSession]):
-        self.db_session_maker = db_session_maker  # Теперь это async_sessionmaker, а не AsyncSession
-        print(f"DEBUG: db_session_maker type = {type(self.db_session_maker)}")  # Проверка типа
-
+        self.db_session_maker = db_session_maker
 
     async def get_tasks(self, task_id: int = None) -> list[Task]:
-        async with self.db_session_maker() as session:  # Вызываем фабрику, а не саму сессию
+        async with self.db_session_maker() as session:
             if task_id:
                 query = select(Task).where(Task.id == task_id)
             else:
