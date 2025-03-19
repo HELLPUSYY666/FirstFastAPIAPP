@@ -13,7 +13,8 @@ router = APIRouter(prefix='/task', tags=['tasks'])
 
 @router.get('/all', response_model=list[TaskSchema])
 async def get_task(task_service: Annotated[TaskService, Depends(get_task_service)]):
-    return await task_service.get_tasks()
+    tasks = await task_service.get_tasks()
+    return [TaskSchema.model_validate(task) for task in tasks]
 
 
 @router.post('/task', response_model=TaskSchema)

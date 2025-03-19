@@ -1,19 +1,17 @@
 from pydantic import BaseModel, Field, model_validator
-from typing import Optional
 
 
 class TaskSchema(BaseModel):
-    id: Optional[int]
+    id: int | None = None
     name: str
     pomodoro_count: int | None = None
     category_id: int | None = None
 
-    class Config:
-        from_attributes = True
+    model_config = {"from_attributes": True}
 
     @model_validator(mode='before')
-    def check_name_not_none(self):
-        if ['name'] is None:
+    @classmethod
+    def check_name_not_none(cls, values):
+        if values.get("name") is None:
             raise ValueError("Name cannot be None")
-        else:
-            return self
+        return values

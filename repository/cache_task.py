@@ -1,8 +1,6 @@
 import json
-from typing import Any
-
 import redis.asyncio as redis
-
+from typing import List
 from schema.task import TaskSchema
 
 
@@ -11,7 +9,7 @@ class TaskCacheRepository:
     def __init__(self, cache_session: redis.Redis) -> None:
         self.cache_session = cache_session
 
-    async def get_all_tasks(self, key: str = "all_tasks") -> list[Any]:
+    async def get_all_tasks(self, key: str = "all_tasks") -> List[TaskSchema]:
         tasks_json = await self.cache_session.get(key)
         if tasks_json is None:
             return []
