@@ -1,21 +1,10 @@
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
-from settings import Settings
+from sqlalchemy.orm import DeclarativeBase
+from typing import Any
 
 
-settings = Settings()
-engine = create_async_engine(settings.db_url, echo=True)
+class Base(DeclarativeBase):
+    id: Any
+    __name__: str
 
-async_session_maker = async_sessionmaker(
-    bind=engine,
-    class_=AsyncSession,
-    expire_on_commit=False
-)
+    __allow_unmapped__ = True
 
-
-async def get_session_maker():
-    return async_session_maker
-
-
-async def get_db_session():
-    async with async_session_maker() as session:
-        yield session
