@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy import delete, update
-from database import Task
+from models import Task
 
 
 class TaskRepository:

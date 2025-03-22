@@ -1,13 +1,6 @@
-from sqlalchemy.orm import DeclarativeBase, Mapped, declared_attr, relationship
+from sqlalchemy.orm import Mapped, relationship
 from sqlalchemy import Column, Integer, String, ForeignKey
-from typing import Any
-
-
-class Base(DeclarativeBase):
-    id: Any
-    __name__: str
-
-    __allow_unmapped__ = True
+from database import Base
 
 
 class Task(Base):
