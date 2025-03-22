@@ -2,10 +2,10 @@ from http.client import HTTPException
 from typing import Annotated
 from fastapi import APIRouter, status, Depends
 
-from database import Task
+from models import Task
 from schema.task import TaskSchema
-from repository import TaskRepository, TaskCacheRepository
-from dependecy import get_task_repository, get_task_cache_repository, get_task_service
+from repository import TaskRepository
+from dependecy import get_task_repository, get_task_service
 from service import TaskService
 
 router = APIRouter(prefix='/task', tags=['tasks'])
