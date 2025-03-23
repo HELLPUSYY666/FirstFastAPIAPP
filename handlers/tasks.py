@@ -3,9 +3,9 @@ from typing import Annotated
 from fastapi import APIRouter, status, Depends
 
 from models import Task
-from schema.task import TaskSchema
+from schema.task import TaskSchema, TaskCreateSchema
 from repository import TaskRepository
-from dependecy import get_task_repository, get_task_service
+from dependecy import get_task_repository, get_task_service, get_request_user_id
 from service import TaskService
 
 router = APIRouter(prefix='/task', tags=['tasks'])
@@ -18,21 +18,13 @@ async def get_task(task_service: Annotated[TaskService, Depends(get_task_service
 
 
 @router.post('/task', response_model=TaskSchema)
-async def create_task(task: TaskSchema, task_repository: Annotated[TaskRepository, Depends(get_task_repository)]):
-    new_task = Task(
-        name=task.name,
-        pomodoro_count=task.pomodoro_count,
-        category_id=task.category_id
-    )
-
-    created_task = await task_repository.create_task(new_task)
-
-    return TaskSchema(
-        id=created_task.id,
-        name=created_task.name,
-        pomodoro_count=created_task.pomodoro_count,
-        category_id=created_task.category_id
-    )
+async def create_task(
+        body: TaskCreateSchema,
+        task_service: Annotated[TaskService, Depends(get_task_service)],
+        user_id: int = Depends(get_request_user_id)
+):
+    task = await task_service.create_task(body, user_id)
+    return TaskSchema.model_validate(task)
 
 
 @router.patch('/{task_id}', response_model=TaskSchema)
