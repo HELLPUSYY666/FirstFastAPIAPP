@@ -11,7 +11,11 @@ class Settings(BaseSettings):
     CACHE_HOST: str = 'localhost'
     CACHE_PORT: int = 6379
     CACHE_DB: int = 0
+    JWT_SECRET_KEY: str = 'secret_key'
+    JWT_ENCODE_ALGORITHM: str = 'HS256'
 
     @property
     def db_url(self):
         return f'{self.DB_DRIVER}://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}'
+
+settings = Settings()
