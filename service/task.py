@@ -1,5 +1,5 @@
 from repository import TaskRepository, TaskCacheRepository
-from schema.task import TaskSchema
+from schema.task import TaskSchema, TaskCreateSchema
 from dataclasses import dataclass
 
 
@@ -23,4 +23,6 @@ class TaskService:
         else:
             return []
 
-
+    async def create_task(self, body: TaskCreateSchema, user_id: int) -> TaskSchema:
+        task = await self.task_repository.create_task(body, user_id)
+        return TaskSchema.model_validate(task.__dict__)
