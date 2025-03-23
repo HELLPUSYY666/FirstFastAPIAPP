@@ -1,5 +1,6 @@
+from exception import TaskNotFound
 from repository import TaskRepository, TaskCacheRepository
-from schema.task import TaskSchema
+from schema.task import TaskSchema, TaskCreateSchema
 from dataclasses import dataclass
 
 
@@ -23,4 +24,19 @@ class TaskService:
         else:
             return []
 
+    async def create_task(self, body: TaskCreateSchema, user_id: int) -> TaskSchema:
+        task = await self.task_repository.create_task(body, user_id)
+        return TaskSchema.model_validate(task.__dict__)
 
+    async def update_task_name(self, task_id: int, name: str, user_id: int) -> TaskSchema:
+        task = await self.task_repository.get_user_task(task_id, user_id)
+        if not task:
+            raise TaskNotFound
+        task = await self.task_repository.update_task_name(task_id, name)
+        return TaskSchema.model_validate(task.__dict__)
+
+    async def delete_task(self, task_id: int, user_id: int) -> None:
+        task = await self.task_repository.get_user_task(task_id, user_id)
+        if not task:
+            raise TaskNotFound
+        await self.task_repository.delete_task(task_id=task_id, user_id=user_id)
