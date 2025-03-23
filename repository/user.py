@@ -35,4 +35,4 @@ class UserRepository:
         query = select(UserProfile).where(UserProfile.username == username)
         async with self.session_maker() as session:
             result = await session.execute(query)
-            return result.scalar_one_or_none()
+            return result.scalars().first()
