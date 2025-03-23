@@ -10,7 +10,7 @@ class Task(Base):
     name = Column(String, nullable=False)
     pomodoro_count = Column(Integer, nullable=False)
     category_id = Column(Integer, ForeignKey("Category.id"), nullable=False)
-
+    user_id = Column(Integer, ForeignKey("UserProfile.id"), nullable=False)
     category = relationship("Category")
 
 
