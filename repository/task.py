@@ -46,3 +46,10 @@ class TaskRepository:
             if task is None:
                 raise ValueError(f"Task with id {task_id} not found")
             return task
+
+    async def get_user_task(self, task_id: int, user_id: int) -> Task | None:
+        query = select(Task).where(Task.id == task_id, Task.user_id == user_id)
+        async with self.db_session_maker() as session:
+            result = await session.execute(query)
+            task = result.scalar_one_or_none()
+            return task
