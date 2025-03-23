@@ -32,10 +32,11 @@ class TaskRepository:
             await session.refresh(task_model)
             return task_model
 
-    async def delete_task(self, task_id: int):
+    async def delete_task(self, task_id: int, user_id: int) -> None:
         async with self.db_session_maker() as session:
-            await session.execute(delete(Task).where(Task.id == task_id))
+            await session.execute(delete(Task).where(Task.id == task_id, Task.user_id == user_id))
             await session.commit()
+            await session.flush()
 
     async def update_task_name(self, task_id: int, name: str) -> Task:
         async with self.db_session_maker() as session:
