@@ -2,7 +2,6 @@ from http.client import HTTPException
 from typing import Annotated
 from fastapi import APIRouter, status, Depends
 
-from models import Task
 from schema.task import TaskSchema, TaskCreateSchema
 from repository import TaskRepository
 from dependecy import get_task_repository, get_task_service, get_request_user_id
@@ -28,14 +27,11 @@ async def create_task(
 
 
 @router.patch('/{task_id}', response_model=TaskSchema)
-async def update_task(task_id: int, name: str,
-                      task_repository: Annotated[TaskRepository, Depends(get_task_repository)]):
-    try:
-        updated_task = await task_repository.update_task_name(task_id, name)
-        return updated_task
-    except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
-    return {"message": f"Task {task_id} updated successfully"}
+async def update_task(task_id: int,
+                      name: str,
+                      task_service: Annotated[TaskService, Depends(get_task_service)],
+                      user_id: int = Depends(get_request_user_id)):
+    return await task_service.update_task_name(task_id, name, user_id)
 
 
 @router.delete('/{task_id}', status_code=status.HTTP_204_NO_CONTENT)
